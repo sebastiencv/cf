@@ -1,0 +1,7 @@
+---
+applications:
+- name: app-seb
+  memory: 1024MB
+  buildpack: nodejs_buildpack
+  command: node server.js
+  
