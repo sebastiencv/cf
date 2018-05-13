@@ -24,17 +24,13 @@ var cmd = (cmdStr) => {
   });
 }
 
-cmd(`lsb_release -a`)
-cmd(`lscpu`)
-cmd(`pwd`)
-cmd(`ls /home/vcap/deps/0`)
-cmd(`ls /home/vcap/deps/0/tesseract-ocr`)
-cmd(`ls -la /home/vcap/deps/0/tesseract-ocr/lib`)
-cmd('echo $PATH')
+cmd(`ls -la $LD_LIBRARY_PATH`)
 cmd('echo $LD_LIBRARY_PATH')
-cmd('ls -la $LD_LIBRARY_PATH')
+cmd(`ls -la $TESSDATA_PREFIX`)
 cmd('echo $TESSDATA_PREFIX')
-cmd('printenv')
+cmd(`ls /home/vcap/deps/0/tesseract-ocr`)
+cmd('echo $PATH')
+cmd(`pwd`)
 
 // tesseract processing
 app.all('/tesseract', function (req, res, next) {

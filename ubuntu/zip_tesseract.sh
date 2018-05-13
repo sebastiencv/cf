@@ -1,3 +1,4 @@
+#!/bin/sh
 mkdir -p tesseract/bin
 mkdir -p tesseract/lib
 cp /usr/bin/tesseract tesseract/bin
