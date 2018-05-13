@@ -1,8 +1,0 @@
-.anvil
-.DS_Store
-.idea
-/tmp
-/log/
-/nodejs_buildpack-*.zip
-/.bin
-/pkg/

@@ -1,9 +1,11 @@
 {
+  "license": "MIT",
   "dependencies": {
     "app-module-path": "^2.2.0",
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "http-proxy-middleware": "^0.17.4",
+    "node-tesseract": "^0.2.7",
     "serve-index": "^1.9.1"
   }
 }
