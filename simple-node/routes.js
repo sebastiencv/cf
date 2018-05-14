@@ -36,11 +36,11 @@ const process = (req, res) => {
     } else {
       fs.unlink(path, (err) => {
         if (err) {
-          res.json(500, "Error while scanning image")
+          res.status(500).json("Error while scanning image")
         }
         console.log('successfully deleted %s', path)
       })
-      res.json(200, text);
+      res.status(200).json(text)
     }
   })
 }
