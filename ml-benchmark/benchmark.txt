@@ -1,0 +1,11 @@
+url	dpi	rotation	time	precision
+leonardo	075	0	6583	90
+leonardo	150	0	6850	97
+leonardo	150	1	301305	0
+leonardo	150	2	9138	59
+leonardo	200	0	9063	97
+leonardo	200	1	8203	98
+leonardo	200	2	7438	59
+leonardo	300	0	13356	97
+leonardo	300	1	13210	95
+leonardo	300	2	12198	59
