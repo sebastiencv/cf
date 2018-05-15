@@ -19,16 +19,20 @@ const apis = [{
     const data = JSON.parse(body)
     return data && data.predictions ? data.predictions[0] : ""
   }
-  // }, {
-  //   name: 'cf-tesseract-3',
-  //  extension: 'jpeg',
-//   url: 'https://app-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
-//     getText: (body) => body
-
+}, {
+  name: 'cf-tesseract-3-jpeg',
+  extension: 'jpeg',
+  url: 'https://app-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
+  getText: (body) => body
+}, {
+  name: 'cf-tesseract-3-tiff',
+  extension: 'tiff',
+  url: 'https://app-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
+  getText: (body) => body
 }]
 
 // concat 5 times
-const apisN = apis // .concat(apis.concat(apis.concat(apis.concat(apis))))
+const apisN = apis.concat(apis.concat(apis.concat(apis.concat(apis))))
 
 // call an API, return a promise
 const callApi = (api, fileName, imgPath) => {
