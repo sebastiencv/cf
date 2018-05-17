@@ -1,4 +1,0 @@
----
-applications:
-- name: rust-app
-  instances: 1
