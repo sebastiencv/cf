@@ -5,41 +5,41 @@ const math = require('mathjs')
 const levenshtein = require('./levenshtein')
 
 const apis = [{
-  name: 'leonardo',
-  extension: 'pdf',
-  url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
-  formData: {
-    options: JSON.stringify({ lang: 'en', output_type: 'txt' })
-  },
-  headers: {
-    'Accept': 'application/json',
-    'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
-  },
-  getText: (body) => {
-    const data = JSON.parse(body)
-    return data && data.predictions ? data.predictions[0] : ""
-  },
-}, {
-  name: 'ms-cognitive-service',
-  extension: 'jpeg',
-  url: 'https://westeurope.api.cognitive.microsoft.com/vision/v2.0/ocr?en&true',
-  headers: {
-    'Content-Type': 'multipart/form-data',
-    'Ocp-Apim-Subscription-Key': '3572dc0e141449e4a2631df847c0484d'
-  },
-  getText: (body) => {
-    const data = JSON.parse(body)
-    return getTextInObject(data)
-  }
-}, {
-  name: 'cf-tesseract-3',
+//   name: 'leonardo',
+//   extension: 'pdf',
+//   url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
+//   formData: {
+//     options: JSON.stringify({ lang: 'en', output_type: 'txt' })
+//   },
+//   headers: {
+//     'Accept': 'application/json',
+//     'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
+//   },
+//   getText: (body) => {
+//     const data = JSON.parse(body)
+//     return data && data.predictions ? data.predictions[0] : ""
+//   },
+// }, {
+//   name: 'ms-cognitive-service',
+//   extension: 'jpeg',
+//   url: 'https://westeurope.api.cognitive.microsoft.com/vision/v2.0/ocr?en&true',
+//   headers: {
+//     'Content-Type': 'multipart/form-data',
+//     'Ocp-Apim-Subscription-Key': '3572dc0e141449e4a2631df847c0484d'
+//   },
+//   getText: (body) => {
+//     const data = JSON.parse(body)
+//     return getTextInObject(data)
+//   }
+// }, {
+  name: 'cf-tesseract-4',
   extension: 'jpeg',
   url: 'https://app-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
   getText: (body) => { return body }
 }]
 
 // concat 5 times
-const apisN = apis.concat(apis.concat(apis))
+const apisN = apis // .concat(apis.concat(apis))
 
 // call an API, return a promise
 const callApi = (api, fileName, imgPath) => {
@@ -78,7 +78,7 @@ const referenceText = "Human Resources Synergy 201, Bergman Street phone: + 31 5
 // 0 means as much permutation as chars
 const accuracy = (text) => {
   const textSingleSpace = text.replace(/\\n/g, ' ').replace(/\s+/g, ' ')
-  // return Math.round((referenceTextLength - levenshtein(referenceText, textSingleSpace)) / referenceTextLength * 100)
+  return Math.round((textSingleSpace.length - levenshtein(referenceText, textSingleSpace)) / textSingleSpace.length * 100)
   const referenceWords = referenceText.split(" ")
   const words = textSingleSpace.split(" ")
   let countSuccess = 0
