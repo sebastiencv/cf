@@ -1,0 +1,7 @@
+---
+applications:
+- name: tensorflow-seb
+  memory: 2048MB
+  docker:
+    image: tensorflow/tensorflow
+  
