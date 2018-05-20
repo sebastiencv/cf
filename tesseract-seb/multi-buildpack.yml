@@ -1,0 +1,3 @@
+buildpacks:
+  - https://github.com/sebastiencv/cf-tesseract-buildpack
+  - https://github.com/cloudfoundry/nodejs-buildpack

@@ -1,0 +1,5 @@
+---
+applications:
+ - name: tensorflow-seb
+   random-route: true
+   memory: 1024M

@@ -1,7 +1,0 @@
----
-applications:
-- name: app-seb
-  memory: 1024MB
-  buildpack: https://github.com/cloudfoundry/multi-buildpack
-  command: node server.js
-  
