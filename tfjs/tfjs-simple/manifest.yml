@@ -1,0 +1,5 @@
+---
+applications:
+ - name: tensorflow-seb
+   memory: 1024M
+   command: node server.js

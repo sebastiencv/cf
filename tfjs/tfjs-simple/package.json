@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "node-gyp": "*",
+    "@tensorflow/tfjs": "*",
+    "@tensorflow/tfjs-node": "*"
+  },
+  "engines": {
+    "node": "8.x"
+  }
+}
