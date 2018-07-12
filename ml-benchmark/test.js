@@ -1,50 +1,79 @@
 const request = require('request')
 const fs = require('fs')
 const path = require('path')
-const math = require('mathjs')
+// const math = require('mathjs')
 const levenshtein = require('./levenshtein')
 
-const apis = [{
-//   name: 'leonardo',
-//   extension: 'pdf',
-//   url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
-//   formData: {
-//     options: JSON.stringify({ lang: 'en', output_type: 'txt' })
-//   },
-//   headers: {
-//     'Accept': 'application/json',
-//     'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
-//   },
-//   getText: (body) => {
-//     const data = JSON.parse(body)
-//     return data && data.predictions ? data.predictions[0] : ""
-//   },
-// }, {
-//   name: 'ms-cognitive-service',
-//   extension: 'jpeg',
-//   url: 'https://westeurope.api.cognitive.microsoft.com/vision/v2.0/ocr?en&true',
-//   headers: {
-//     'Content-Type': 'multipart/form-data',
-//     'Ocp-Apim-Subscription-Key': '3572dc0e141449e4a2631df847c0484d'
-//   },
-//   getText: (body) => {
-//     const data = JSON.parse(body)
-//     return getTextInObject(data)
-//   }
-// }, {
-  name: 'cf-tesseract-4',
-  extension: 'jpeg',
-  url: 'https://app-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
-  getText: (body) => { return body }
-}]
+const leonardoApi = {
+  name: 'leonardo',
+  extension: 'pdf',
+  url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
+  formData: {
+    options: JSON.stringify({ lang: 'en', output_type: 'txt' })
+  },
+  headers: {
+    'Accept': 'application/json',
+    'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
+  },
+  getText: (body) => {
+    return body && body.predictions ? body.predictions[0] : ''
+  }
+}
 
-// concat 5 times
+const apis = [
+  {
+    name: 'cf-tesseract-4',
+    extension: 'jpeg',
+    url: 'https://tesseract-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
+    getText: (body) => { return body.text }
+  },
+  leonardoApi,
+  // {
+  //   name: 'leonardo',
+  //   extension: 'pdf',
+  //   url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
+  //   formData: {
+  //     options: JSON.stringify({ lang: 'en', output_type: 'txt' })
+  //   },
+  //   headers: {
+  //     'Accept': 'application/json',
+  //     'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
+  //   },
+  //   getText: (body) => {
+  //     return body && body.predictions ? body.predictions[0] : ""
+  //   },
+  // }, {
+  //   name: 'ms-cognitive-service',
+  //   extension: 'jpeg',
+  //   url: 'https://westeurope.api.cognitive.microsoft.com/vision/v2.0/ocr?en&true',
+  //   headers: {
+  //     'Content-Type': 'multipart/form-data',
+  //     'Ocp-Apim-Subscription-Key': '3572dc0e141449e4a2631df847c0484d'
+  //   },
+  //   getText: (body) => {
+  //     return getTextInObject(body)
+  //   }
+]
+
+// test different page_seg_mode apis
+// ['lstm_precise', 'lstm_fast', 'lstm_standard', 'no_lstm', 'all'].forEach(modelType =>{
+//   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].forEach(seg =>{
+//     const api = Object.assign({}, leonardoApi)
+//     api.name += `-seg${seg}-${modelType}`
+//     api.seg = seg
+//     api.modelType = modelType
+//     api.formData = {
+//       options: JSON.stringify({ lang: 'en', output_type: 'txt', page_seg_mode: seg, model_type: modelType })
+//     }
+//     apis.push(api)
+//   })
+// })
+
+// concat 3 times
 const apisN = apis // .concat(apis.concat(apis))
 
 // call an API, return a promise
 const callApi = (api, fileName, imgPath) => {
-  // keep only correct file extension
-  if (fileName.indexOf(`.${api.extension}`) <= 0) return Promise.resolve()
   // prepare formData with provided formData
   const formData = Object.assign({}, api.formData ? api.formData : {}, { files: fs.createReadStream(imgPath) })
   // init runtime count
@@ -71,16 +100,16 @@ const callApi = (api, fileName, imgPath) => {
   })
 }
 
-const referenceText = "Human Resources Synergy 201, Bergman Street phone: + 31 5 66 999 888 fax: + 69 2 5664 445 Springfield, MO 12004 ssc.hr@synergy.com Emergency Contact List Dear Emily Clark, At Synergy we introduced last year a programme. In Case of Emergency, ie, firefighters, and police officers, as well as hospital personnel, to contact your next of kin to obtain important medical or support information. It is important for your safety in such event that the information available to us is up-to date. Below is a list of emergency contacts we have in our records: Relationship Contact Name Phone E-mail Wife Suzy User 999 645 2000 Please review this carefully and make any changes if needed. Yours Sincerely Tom Clark. Synergy Technology and Services Pvt. Ltd. 84, Wonderfull City Tel.: +91 80 33333333 Management: John Nash Hope Road Fax : + 91 80 33333333 Registered Ofﬁce: pentadore #123456. In the middle Web: www.synergy.corp E-mail:contactus@synergy.com Employee Reference: Emily Clark - admin Page: - of -"
+const referenceText = 'Human Resources Synergy 201, Bergman Street phone: + 31 5 66 999 888 fax: + 69 2 5664 445 Springfield, MO 12004 ssc.hr@synergy.com Emergency Contact List Dear Emily Clark, At Synergy we introduced last year a programme. In Case of Emergency, ie, firefighters, and police officers, as well as hospital personnel, to contact your next of kin to obtain important medical or support information. It is important for your safety in such event that the information available to us is up-to date. Below is a list of emergency contacts we have in our records: Relationship Contact Name Phone E-mail Wife Suzy User 999 645 2000 Please review this carefully and make any changes if needed. Yours Sincerely Tom Clark. Synergy Technology and Services Pvt. Ltd. 84, Wonderfull City Tel.: +91 80 33333333 Management: John Nash Hope Road Fax : + 91 80 33333333 Registered Ofﬁce: pentadore #123456. In the middle Web: www.synergy.corp E-mail:contactus@synergy.com Employee Reference: Emily Clark - admin Page: - of -'
 
 // compute precision between reference text and returned text
 // 100 means exact match (no distance)
 // 0 means as much permutation as chars
-const accuracy = (text) => {
+const accuracy = (text, compareFullText = true) => {
   const textSingleSpace = text.replace(/\\n/g, ' ').replace(/\s+/g, ' ')
-  return Math.round((textSingleSpace.length - levenshtein(referenceText, textSingleSpace)) / textSingleSpace.length * 100)
-  const referenceWords = referenceText.split(" ")
-  const words = textSingleSpace.split(" ")
+  if (compareFullText) return Math.round((textSingleSpace.length - levenshtein(referenceText, textSingleSpace)) / textSingleSpace.length * 100)
+  const referenceWords = referenceText.split(' ')
+  const words = textSingleSpace.split(' ')
   let countSuccess = 0
   let countTotal = 0
   // compute how much text words exists in reference
@@ -96,33 +125,61 @@ const accuracy = (text) => {
   return Math.round(countSuccess / countTotal * 100)
 }
 
-// process result, build stats
-let statsFile = 'url\tdpi\trotation\ttime\tprecision\n'
-const processResult = (api, {fileName, elapsedTime, body}) => {
-  debugger
-  const currentAccuracy = accuracy(api.getText(body))
-  const [,dpi,rotation] = fileName.match(/(\d*)dpi_r(\d*)/)
-  // add stats
-  statsFile += `${api.name}\t${dpi}\t${rotation}\t${elapsedTime}\t${currentAccuracy}\n`
-}
-
 // prepare a promise chain
 let ready = Promise.resolve()
-// process each images
+// read all files in the images folder
+const files = fs.readdirSync(path.join(__dirname, 'files'))
+// bypass system files
+.filter(fileName => fileName.indexOf('.') !== 0)
+// .slice(3, 5)
+let nbrSteps = 0
+let step = 0
+
+// return first captured match
+const strMatch = (str, regex) => {
+  const match = str.match(regex)
+  if (match) {
+    return match[1]
+  } else {
+    return null
+  }
+}
+
+// process result, build stats
+let statsFile = 'url\tdpi\trotation\ttime\tprecision\n'
+const networkRuntimes = {}
+const processResult = (api, {fileName, elapsedTime, body}) => {
+  const data = JSON.parse(body)
+  const currentAccuracy = accuracy(api.getText(data))
+  const fileNameShort = strMatch(fileName, /([^\.]*)/)
+  const dpi = strMatch(fileName, /_(\d*)dpi/)
+  const rotation = strMatch(fileName, /_r(\d*)/)
+  // Compute network time and store it
+  let networkRuntime = data && data.runtime ? elapsedTime - data.runtime : 0
+  if (networkRuntime > 0) {
+    networkRuntimes[fileNameShort] = networkRuntime
+  } else {
+    networkRuntime = networkRuntimes[fileNameShort] ? networkRuntimes[fileNameShort] : 0
+  }
+  // add stats
+  console.log(`${Math.round((++step)/nbrSteps*100)}% ${api.name}, ${fileName} : ${dpi} ${rotation} ${elapsedTime-networkRuntime} ${currentAccuracy} ${networkRuntime}`)
+  statsFile += `${api.name}\t${dpi}\t${rotation}\t${elapsedTime-networkRuntime}\t${currentAccuracy}\t${api.seg}\t${api.modelType}\t${networkRuntime}\n`
+}
+
+
 Promise.all(
-  // read all files in the images folder
-  fs.readdirSync(path.join(__dirname, 'files'))
-  // bypass system files
-  .filter(file => file.indexOf('.') !== 0)
-  // .slice(3, 4)
   // process files
-  .map(file => {
+  files.map(fileName => {
+    console.log(`== ${fileName}`)
+    nbrSteps++
     // loop each api
     return Promise.all(apisN.map(api => {
+      // keep only correct file extension
+      if (fileName.indexOf(`.${api.extension}`) <= 0) return 
       // chain promises
       return ready = ready.then(() => {
         // call the api
-        return callApi(api, file, path.join(__dirname, 'files', file))
+        return callApi(api, fileName, path.join(__dirname, 'files', fileName))
         .then(result => {
           if (result) processResult(api, result)
         })
@@ -135,6 +192,7 @@ Promise.all(
   fs.writeFileSync('benchmark.txt', statsFile)
 })
 
+/*
 // return an object as an array of kays
 const keys = (items) => {
   return Object.keys(items).map(key => {
@@ -157,3 +215,4 @@ const getTextInObject = (input) => {
   getTextInObjectInner(input)
   return words.join(" ")
 }
+*/

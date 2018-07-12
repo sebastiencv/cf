@@ -12,7 +12,7 @@ const upload = multer({
 })
 
 module.exports = (app) => {
-  app.post("/api/ocr", upload.single('files'), process)
+  app.post('/api/ocr', upload.single('files'), processRequest)
 }
 
 /**
@@ -26,21 +26,23 @@ module.exports = (app) => {
  * @param req
  * @param res
  */
-const process = (req, res) => {
+const processRequest = (req, res) => {
   // console.log(req)
   const path = req.file.path
+  const time = process.hrtime()
   // Recognize text of any language in any format
   tesseract.process(path, (err, text) => {
+    const diff = process.hrtime(time)
     if (err) {
       console.error(err)
     } else {
       fs.unlink(path, (err) => {
         if (err) {
-          res.status(500).json("Error while scanning image")
+          res.status(500).json('Error while scanning image')
         }
         console.log('successfully deleted %s', path)
       })
-      res.status(200).json(text)
+      res.status(200).json({text: text, runtime: diff[0]*1000 + diff[1]/1000000})
     }
   })
 }

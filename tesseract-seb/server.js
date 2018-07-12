@@ -12,5 +12,5 @@ require('./routes')(app)
 
 const runningPortNumber = process.env.PORT || 3001
 const server = app.listen(runningPortNumber, () => {
-  console.log('Example app listening at http://%s:%s', server.address().address, server.address().port);
+  console.log('Example app listening at http://%s:%s', server.address().address, server.address().port)
 })
