@@ -1,0 +1,7 @@
+url	file	fileShort	dpi	rotation	time	precision	seg	modelType	elapseTime	networkTime
+leonardo-network	1p.network	1p	null	null	0	undefined	undefined	undefined	2242	2242
+leonardo	1p.pdf	1p	null	null	4472	29	undefined	undefined	6714	2242
+leonardo-network	2p.network	2p	null	null	0	undefined	undefined	undefined	3842	3842
+leonardo	2p.pdf	2p	null	null	13418	26	undefined	undefined	17260	3842
+leonardo-network	3p.network	3p	null	null	0	undefined	undefined	undefined	15128	15128
+leonardo	3p.pdf	3p	null	null	11209	15	undefined	undefined	26337	15128

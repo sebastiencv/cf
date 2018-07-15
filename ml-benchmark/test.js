@@ -4,30 +4,43 @@ const path = require('path')
 // const math = require('mathjs')
 const levenshtein = require('./levenshtein')
 
-const leonardoApi = {
-  name: 'leonardo',
-  extension: 'pdf',
-  url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
-  formData: {
-    options: JSON.stringify({ lang: 'en', output_type: 'txt' })
-  },
-  headers: {
-    'Accept': 'application/json',
-    'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
-  },
-  getText: (body) => {
-    return body && body.predictions ? body.predictions[0] : ''
-  }
-}
-
 const apis = [
+  // {
+  //   name: 'cf-tesseract-4',
+  //   extension: 'jpeg',
+  //   url: 'https://tesseract-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
+  //   getText: (body) => { return body.text }
+  // },
   {
-    name: 'cf-tesseract-4',
-    extension: 'jpeg',
-    url: 'https://tesseract-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
-    getText: (body) => { return body.text }
+    name: 'leonardo-network',
+    extension: 'network',
+    url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
+    formData: {
+      options: JSON.stringify({ stop: true })
+    },
+    headers: {
+      'Accept': 'application/json',
+      'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
+    },
+    getText: (body) => {
+      return body && body.predictions ? body.predictions[0] : ''
+    }
   },
-  leonardoApi,
+  {
+    name: 'leonardo',
+    extension: 'pdf',
+    url: 'https://sandbox.api.sap.com/ml/ocr/ocr',
+    formData: {
+      options: JSON.stringify({ lang: 'en', output_type: 'txt', modelType: 'lstm_fast' })
+    },
+    headers: {
+      'Accept': 'application/json',
+      'APIKey': 'F9T4RcOBfWgRmaG3egzTBlnssxJ6siOZ'
+    },
+    getText: (body) => {
+      return body && body.predictions ? body.predictions[0] : ''
+    }
+  },
   // {
   //   name: 'leonardo',
   //   extension: 'pdf',
@@ -68,9 +81,6 @@ const apis = [
 //     apis.push(api)
 //   })
 // })
-
-// concat 3 times
-const apisN = apis // .concat(apis.concat(apis))
 
 // call an API, return a promise
 const callApi = (api, fileName, imgPath) => {
@@ -135,6 +145,13 @@ const files = fs.readdirSync(path.join(__dirname, 'files'))
 let nbrSteps = 0
 let step = 0
 
+// concat 8 times
+// files.push(...files)
+// files.push(...files)
+// files.push(...files)
+
+
+
 // return first captured match
 const strMatch = (str, regex) => {
   const match = str.match(regex)
@@ -146,49 +163,57 @@ const strMatch = (str, regex) => {
 }
 
 // process result, build stats
-let statsFile = 'url\tdpi\trotation\ttime\tprecision\n'
+let statsFile = 'url\tfile\tfileShort\tdpi\trotation\ttime\tprecision\tseg\tmodelType\telapseTime\tnetworkTime\n'
 const networkRuntimes = {}
 const processResult = (api, {fileName, elapsedTime, body}) => {
   const data = JSON.parse(body)
-  const currentAccuracy = accuracy(api.getText(data))
-  const fileNameShort = strMatch(fileName, /([^\.]*)/)
+  // classify the test
+  const fileNameShort = strMatch(fileName, /^([^\.]*)/)
   const dpi = strMatch(fileName, /_(\d*)dpi/)
   const rotation = strMatch(fileName, /_r(\d*)/)
-  // Compute network time and store it
-  let networkRuntime = data && data.runtime ? elapsedTime - data.runtime : 0
-  if (networkRuntime > 0) {
-    networkRuntimes[fileNameShort] = networkRuntime
+  let currentAccuracy
+  // we are in network measurment
+  if (api.extension === 'network') {
+    // store for next access
+    networkRuntimes[fileNameShort] = elapsedTime
   } else {
-    networkRuntime = networkRuntimes[fileNameShort] ? networkRuntimes[fileNameShort] : 0
+    // compute accuracy
+    currentAccuracy = accuracy(api.getText(data))
   }
+  // Compute network time and store it
+  const networkRuntime = networkRuntimes[fileNameShort] ? networkRuntimes[fileNameShort] : 0
+  const runTime = parseInt(elapsedTime-networkRuntime)
   // add stats
-  console.log(`${Math.round((++step)/nbrSteps*100)}% ${api.name}, ${fileName} : ${dpi} ${rotation} ${elapsedTime-networkRuntime} ${currentAccuracy} ${networkRuntime}`)
-  statsFile += `${api.name}\t${dpi}\t${rotation}\t${elapsedTime-networkRuntime}\t${currentAccuracy}\t${api.seg}\t${api.modelType}\t${networkRuntime}\n`
+  console.log(`${Math.round((++step)/nbrSteps*100)}% ${api.name}, ${fileName} : ${dpi} ${rotation} ${runTime} ${currentAccuracy} ${parseInt(elapsedTime)} ${networkRuntime}`)
+  statsFile += `${api.name}\t${fileName}\t${fileNameShort}\t${dpi}\t${rotation}\t${runTime}\t${currentAccuracy}\t${api.seg}\t${api.modelType}\t${parseInt(elapsedTime)}\t${networkRuntime}\n`
 }
 
 
-Promise.all(
-  // process files
-  files.map(fileName => {
+// process files
+files.map(fileName => {
+  nbrSteps++
+  // loop each api
+  apis.map(api => {
+    // keep only correct file extension
+    if (fileName.indexOf(`.${api.extension}`) <= 0) return 
     console.log(`== ${fileName}`)
-    nbrSteps++
-    // loop each api
-    return Promise.all(apisN.map(api => {
-      // keep only correct file extension
-      if (fileName.indexOf(`.${api.extension}`) <= 0) return 
-      // chain promises
-      return ready = ready.then(() => {
-        // call the api
-        return callApi(api, fileName, path.join(__dirname, 'files', fileName))
-        .then(result => {
-          if (result) processResult(api, result)
-        })
-        .catch(error => console.error(error))
+    // chain promises
+    ready = ready.then(() => {
+      // call the api
+      return callApi(api, fileName, path.join(__dirname, 'files', fileName))
+      .then(result => {
+        if (result) processResult(api, result)
       })
-    }))
+      .catch(error => {
+        console.error(error)
+      })
+    })
   })
-).then(() => {
+})
+
+ready.then(() => {
   // write stats
+  console.log('== Write stats ==')
   fs.writeFileSync('benchmark.txt', statsFile)
 })
 

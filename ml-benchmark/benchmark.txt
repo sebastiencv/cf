@@ -1,11 +1,7 @@
-url	dpi	rotation	time	precision
-cf-tesseract-4	075	0	1757	14
-cf-tesseract-4	150	0	3954	98
-cf-tesseract-4	150	1	3488	95
-cf-tesseract-4	150	2	3029	29
-cf-tesseract-4	200	0	5656	97
-cf-tesseract-4	200	1	4974	98
-cf-tesseract-4	200	2	4739	34
-cf-tesseract-4	300	0	9286	98
-cf-tesseract-4	300	1	11100	69
-cf-tesseract-4	300	2	9345	94
+url	file	fileShort	dpi	rotation	time	precision	seg	modelType	elapseTime	networkTime
+leonardo-network	1p.network	1p	null	null	0	undefined	undefined	undefined	1699	1699
+leonardo	1p.pdf	1p	null	null	5426	29	undefined	undefined	7125	1699
+leonardo-network	2p.network	2p	null	null	0	undefined	undefined	undefined	4435	4435
+leonardo	2p.pdf	2p	null	null	12403	26	undefined	undefined	16838	4435
+leonardo-network	3p.network	3p	null	null	0	undefined	undefined	undefined	5670	5670
+leonardo	3p.pdf	3p	null	null	20477	15	undefined	undefined	26147	5670
