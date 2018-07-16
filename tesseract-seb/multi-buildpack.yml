@@ -1,3 +1,3 @@
 buildpacks:
-  - https://github.com/sebastiencv/cf-tesseract-buildpack#tesseract-4
+  - https://github.com/sebastiencv/cf-tesseract-buildpack
   - https://github.com/cloudfoundry/nodejs-buildpack
