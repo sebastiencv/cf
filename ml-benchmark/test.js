@@ -5,12 +5,12 @@ const path = require('path')
 const levenshtein = require('./levenshtein')
 
 const apis = [
-  // {
-  //   name: 'cf-tesseract-4',
-  //   extension: 'jpeg',
-  //   url: 'https://tesseract-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
-  //   getText: (body) => { return body.text }
-  // },
+  {
+    name: 'cf-tesseract-3',
+    extension: 'pdf',
+    url: 'https://tesseract-seb.cfapps.eu10.hana.ondemand.com/api/ocr',
+    getText: (body) => { return body.text }
+  },
   {
     name: 'leonardo-network',
     extension: 'network',
@@ -138,18 +138,16 @@ const accuracy = (text, compareFullText = true) => {
 // prepare a promise chain
 let ready = Promise.resolve()
 // read all files in the images folder
-const files = fs.readdirSync(path.join(__dirname, 'files'))
+const readFiles = fs.readdirSync(path.join(__dirname, 'files'))
 // bypass system files
 .filter(fileName => fileName.indexOf('.') !== 0)
 // .slice(3, 5)
 let nbrSteps = 0
 let step = 0
 
-// concat 8 times
-// files.push(...files)
-// files.push(...files)
-// files.push(...files)
-
+// concat 10 times
+const files = []
+for (let i=0; i<10; i++) files.push(...readFiles)
 
 
 // return first captured match
@@ -163,7 +161,7 @@ const strMatch = (str, regex) => {
 }
 
 // process result, build stats
-let statsFile = 'url\tfile\tfileShort\tdpi\trotation\ttime\tprecision\tseg\tmodelType\telapseTime\tnetworkTime\n'
+let statsFile = 'url\tfile\tfileShort\tdpi\trotation\ttime\tprecision\tseg\tmodelType\telapseTime\tnetworkTime\tconvertTime\ttesseractTime\n'
 const networkRuntimes = {}
 const processResult = (api, {fileName, elapsedTime, body}) => {
   const data = JSON.parse(body)
@@ -181,11 +179,11 @@ const processResult = (api, {fileName, elapsedTime, body}) => {
     currentAccuracy = accuracy(api.getText(data))
   }
   // Compute network time and store it
-  const networkRuntime = networkRuntimes[fileNameShort] ? networkRuntimes[fileNameShort] : 0
-  const runTime = parseInt(elapsedTime-networkRuntime)
+  const networkRuntime = data.tesseractRuntime ? parseInt(elapsedTime - (data.convertRuntime + data.tesseractRuntime)) : networkRuntimes[fileNameShort] ? parseInt(networkRuntimes[fileNameShort]) : 0
+  const runTime = data.tesseractRuntime ? parseInt(data.convertRuntime + data.tesseractRuntime) : parseInt(elapsedTime-networkRuntime)
   // add stats
-  console.log(`${Math.round((++step)/nbrSteps*100)}% ${api.name}, ${fileName} : ${dpi} ${rotation} ${runTime} ${currentAccuracy} ${parseInt(elapsedTime)} ${networkRuntime}`)
-  statsFile += `${api.name}\t${fileName}\t${fileNameShort}\t${dpi}\t${rotation}\t${runTime}\t${currentAccuracy}\t${api.seg}\t${api.modelType}\t${parseInt(elapsedTime)}\t${networkRuntime}\n`
+  console.log(`${Math.round((++step)/nbrSteps*100)}% ${api.name}, ${fileName} : ${dpi} ${rotation} ${runTime} acc:${currentAccuracy} time:${parseInt(elapsedTime)} net:${networkRuntime} conv:${parseInt(data.convertRuntime)} tess:${parseInt(data.tesseractRuntime)}`)
+  statsFile += `${api.name}\t${fileName}\t${fileNameShort}\t${dpi}\t${rotation}\t${runTime}\t${currentAccuracy}\t${api.seg}\t${api.modelType}\t${parseInt(elapsedTime)}\t${networkRuntime}\t${parseInt(data.convertRuntime)}\t${parseInt(data.tesseractRuntime)}\n`
 }
 
 
