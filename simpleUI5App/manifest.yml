@@ -1,0 +1,6 @@
+applications:
+  - name: simpleUI5app-seb
+    memory: 1024M
+    command: node server.js
+    services:
+      - sfsf-uaa

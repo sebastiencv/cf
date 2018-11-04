@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Simple UI5 app</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script id='sap-ui-bootstrap' src='https://openui5.hana.ondemand.com/resources/sap-ui-core.js' data-sap-ui-theme='sap_belize'
+    data-sap-ui-libs='sap.m'>
+  </script>
+  <script>
+    sap.ui.getCore().attachInit(function () {
+      new sap.m.Button({
+        text: "Click here",
+        press: function () {
+          sap.m.MessageToast.show("Hello from simpleUI5App");
+        }
+      }).placeAt("content");
+    });
+  </script>
+</head>
+
+<body class='sapUiBody' id='content'>
+</body>
+
+</html>
