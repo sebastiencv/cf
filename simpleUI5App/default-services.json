@@ -1,0 +1,8 @@
+{
+  "uaa": {
+    "url": "https://salesdemo4.successfactors.com/sf/idp/SAML2/SSO/POST/company/SFPMIG000023",
+    "clientid": "httpssalesdemo4.successfactors.comsf",
+    "clientsecret": "client-secret",
+    "xsappname": "$XSAPPNAME"
+  }
+}

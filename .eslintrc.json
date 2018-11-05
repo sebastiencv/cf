@@ -1,22 +1,35 @@
 {
-  "env": {
-    "es6": true,
-    "node": true
-  },
-  "extends": "eslint:recommended",
+  "extends": [
+    "standard",
+    "plugin:react/recommended",
+    "prettier",
+    "prettier/react",
+    "prettier/standard"
+  ],
+  "plugins": ["react", "prettier", "standard"],
   "rules": {
-    "indent": [
-      "warn",
-      2
-    ],
-    "quotes": [
+    "no-console": ["error", {
+      "allow": ["warn", "error"]
+    }],
+    "prettier/prettier": [
       "error",
-      "single"
-    ],
-    "semi": [
-      "error",
-      "never"
-    ],
-    "no-console": "off"
+      {
+        "printWidth": 120,
+        "semi": false
+      }
+    ]
+  },
+  "env": {
+    "browser": true,
+    "mocha": true
+  },
+  "globals": {
+    "escapeHtml": true,
+    "sap": true,
+    "jQuery": true,
+    "$": true,
+    "Promise": true,
+    "ArrayBuffer": true,
+    "Uint8Array": true
   }
 }
