@@ -1,5 +1,5 @@
 applications:
-  - name: simpleUI5app-seb
+  - name: ui5-seb
     memory: 512M
     command: node server.js
     services:
